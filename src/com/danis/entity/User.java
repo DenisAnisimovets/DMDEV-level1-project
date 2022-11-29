@@ -3,11 +3,11 @@ package com.danis.entity;
 public class User {
     private int id;
     private String username;
-    private String first_name;
-    String last_name;
-    String email;
-    String password;
-    String city;
+    private String firstName;
+    private String lastName;
+    private String email;
+    private String password;
+    private String city;
     boolean isBlocked;
 
     public User(int id, String username, String first_name, String last_name, String email, String password, String city, boolean isBlocked) {
@@ -22,11 +22,11 @@ public class User {
     }
 
     public void setFirst_name(String first_name) {
-        this.first_name = first_name;
+        this.firstName = first_name;
     }
 
     public void setLast_name(String last_name) {
-        this.last_name = last_name;
+        this.lastName = last_name;
     }
 
     public void setEmail(String email) {
@@ -54,11 +54,11 @@ public class User {
     }
 
     public String getFirst_name() {
-        return first_name;
+        return firstName;
     }
 
     public String getLast_name() {
-        return last_name;
+        return lastName;
     }
 
     public String getEmail() {
