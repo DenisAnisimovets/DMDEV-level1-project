@@ -102,8 +102,8 @@ public class UserDao implements Dao<Integer, User>{
 
     private void populatePreparedStatement(User user, PreparedStatement preparedStatement) throws SQLException {
         preparedStatement.setString(1, user.getUsername());
-        preparedStatement.setString(2, user.getFirst_name());
-        preparedStatement.setString(3, user.getLast_name());
+        preparedStatement.setString(2, user.getFirstName());
+        preparedStatement.setString(3, user.getLastName());
         preparedStatement.setString(4, user.getEmail());
         preparedStatement.setString(5, user.getPassword());
         preparedStatement.setString(6, user.getCity());
