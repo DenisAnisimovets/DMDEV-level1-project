@@ -2,79 +2,74 @@
 --имеет несколько ролей
 CREATE TABLE IF NOT EXISTS users
 (
-    id serial PRIMARY KEY ,
-    name VARCHAR(256) ,
+    id SERIAL PRIMARY KEY ,
+    username VARCHAR(256) ,
+    first_name VARCHAR(256) ,
+    last_name VARCHAR(256) ,
     email VARCHAR(256) UNIQUE NOT NULL,
-    city VARCHAR(128)
+    password VARCHAR(256) NOT NULL,
+    city VARCHAR(128),
+    isBlocked BOOLEAN
 );
 
 --Роли
-CREATE TABLE IF NOT EXISTS role
+CREATE TABLE IF NOT EXISTS roles
 (
-    id serial PRIMARY KEY ,
+    id SERIAL PRIMARY KEY ,
     name VARCHAR(128)
 );
 
 --Роли пользователей. Для каждого прользователя может быть несколько ролей.
 CREATE TABLE IF NOT EXISTS user_role
 (
-    user_id INT REFERENCES users(id) ,
-    role_id INT REFERENCES role(id) ,
+    user_id INT REFERENCES users(id) NOT NULL ,
+    role_id INT REFERENCES roles(id) NOT NULL ,
     PRIMARY KEY (user_id, role_id)
 );
 
 --Товары
-CREATE TABLE IF NOT EXISTS product
+CREATE TABLE IF NOT EXISTS products
 (
-    id serial PRIMARY KEY ,
-    name  VARCHAR(128),
+    id SERIAL PRIMARY KEY ,
+    name  VARCHAR(128) NOT NULL ,
+    description VARCHAR(256) NOT NULL ,
     price INT,
     quantity INT
 );
 
 --Отзывы на товары
-CREATE TABLE IF NOT EXISTS product_feedback
+CREATE TABLE IF NOT EXISTS product_feedbacks
 (
-    id serial PRIMARY KEY ,
-    data_feedback TIMESTAMP ,
-    product_id INT REFERENCES product(id),
+    id SERIAL PRIMARY KEY ,
+    created_at TIMESTAMP ,
+    product_id INT REFERENCES products(id),
     user_id INT REFERENCES users(id),
-    feedback VARCHAR(1024)
-
+    feedback text
 );
 
 --Корзины. Каждый пользователь добавляет товары в корзину. После она попадает в заказ.
-CREATE TABLE IF NOT EXISTS basket
+CREATE TABLE IF NOT EXISTS bucket
 (
-    id serial PRIMARY KEY ,
+    id SERIAL PRIMARY KEY ,
     user_id INT REFERENCES users(id),
-    product_id INT REFERENCES product(id),
+    product_id INT REFERENCES products(id),
     quantity INT
 );
 
 --Заказы
 CREATE TABLE IF NOT EXISTS orders
 (
-    id serial PRIMARY KEY ,
+    id SERIAL PRIMARY KEY ,
     user_id INT REFERENCES users(id),
     sum INT
 );
 
 --Таблична часть заказов. Т.е. товары в заказах
-CREATE TABLE IF NOT EXISTS product_order
+CREATE TABLE IF NOT EXISTS product_orders
 (
     order_id INT REFERENCES orders(id),
-    product_id INT REFERENCES product(id),
+    product_id INT REFERENCES products(id),
     quantity INT,
     price INT,
     sum INT
 );
-
-
-
-
-
-
-
-
-
