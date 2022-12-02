@@ -9,7 +9,8 @@ import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
-public class ConnectionManager {
+public final class ConnectionManager {
+
     private static final String PASSWORD_KEY = "db.password";
     private static final String USERNAME_KEY = "db.username";
     private static final String URL_KEY = "db.url";
@@ -81,4 +82,3 @@ public class ConnectionManager {
         }
     }
 }
-

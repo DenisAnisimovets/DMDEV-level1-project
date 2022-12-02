@@ -17,11 +17,18 @@ public class UserDao implements Dao<Integer, User>{
     }
 
     private static final UserDao INSTANCE = new UserDao();
+
+    public static UserDao getInstance() {
+        return INSTANCE;
+    }
+
     /*private static final String DELETE_SQL = """
             DELETE FROM users
             WHERE id = ?
             """;
     */
+
+
     private static final String SAVE_SQL = """
             INSERT INTO internet_shop.public.users (username, first_name, last_name, email, password, city, isBlocked) 
             VALUES (?, ?, ?, ?, ?, ?, ?);

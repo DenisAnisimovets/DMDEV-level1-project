@@ -1,5 +1,7 @@
 package com.danis.entity;
 
+import com.danis.dao.UserDao;
+
 public class User {
     private int id;
     private String username;
@@ -10,8 +12,27 @@ public class User {
     private String city;
     boolean isBlocked;
 
-    public User(int id, String username, String first_name, String last_name, String email, String password, String city, boolean isBlocked) {
+    public User(String username, String firstName, String lastName, String email, String password, String city, boolean isBlocked) {
+        this.username = username;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
+        this.password = password;
+        this.city = city;
+        this.isBlocked = isBlocked;
     }
+
+    public User(int id, String username, String first_name, String last_name, String email, String password, String city, boolean isBlocked) {
+        this.id = id;
+        this.username = username;
+        this.firstName = first_name;
+        this.lastName = last_name;
+        this.email = email;
+        this.password = password;
+        this.city = city;
+        this.isBlocked = isBlocked;
+    }
+
 
     public void setId(int id) {
         this.id = id;
@@ -45,6 +66,20 @@ public class User {
         isBlocked = blocked;
     }
 
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", username='" + username + '\'' +
+                ", firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", email='" + email + '\'' +
+                ", password='" + password + '\'' +
+                ", city='" + city + '\'' +
+                ", isBlocked=" + isBlocked +
+                '}';
+    }
+
     public int getId() {
         return id;
     }
@@ -76,4 +111,5 @@ public class User {
     public boolean isBlocked() {
         return isBlocked;
     }
+
 }

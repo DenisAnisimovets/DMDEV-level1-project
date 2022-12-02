@@ -3,8 +3,13 @@ package com.danis.util;
 import java.io.IOException;
 import java.util.Properties;
 
-public class PropertiesUtil {
+public final class PropertiesUtil {
+
     private static final Properties PROPERTIES = new Properties();
+
+    static {
+        loadProperties();
+    }
 
     private PropertiesUtil() {
     }
