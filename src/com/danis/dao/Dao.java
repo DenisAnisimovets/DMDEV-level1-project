@@ -1,7 +1,5 @@
 package com.danis.dao;
 
-import com.danis.entity.User;
-
 import java.util.List;
 import java.util.Optional;
 

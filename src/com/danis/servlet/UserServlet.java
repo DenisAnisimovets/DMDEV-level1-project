@@ -8,23 +8,18 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
+
 @WebServlet("/users")
 public class UserServlet extends HttpServlet {
-    @Override
-    public void init() throws ServletException {
-        super.init();
-    }
 
-    @Override
-    public void destroy() {
-        super.destroy();
-    }
+    UserDao userDao = UserDao.getInstance();
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         resp.setContentType("text/html");
         try (var writer = resp.getWriter()) {
-            writer.write(new StringBuilder().append("<h1>").append(UserDao.getInstance().findAll().toString()).append("</h1>").toString());
+            int a = 4;
+            writer.write(new StringBuilder().append("<h1>").append(userDao.findAll().toString()).append("</h1>").toString());
         }
     }
 }

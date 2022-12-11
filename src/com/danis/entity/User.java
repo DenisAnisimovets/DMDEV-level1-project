@@ -10,7 +10,7 @@ public class User {
     private String email;
     private String password;
     private String city;
-    boolean isBlocked;
+    private boolean isBlocked;
 
     public User(String username, String firstName, String lastName, String email, String password, String city, boolean isBlocked) {
         this.username = username;

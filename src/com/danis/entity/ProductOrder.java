@@ -9,9 +9,10 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
-public class Bucket {
-    private int id;
-    private int userId;
-    private int productId;
+public class ProductOrder {
+    private int order_id;
+    private int product_id;
     private int quantity;
+    private int price;
+    private int sum;
 }

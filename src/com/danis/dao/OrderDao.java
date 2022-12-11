@@ -1,6 +1,7 @@
 package com.danis.dao;
 
-import com.danis.entity.User;
+import com.danis.entity.Bucket;
+import com.danis.entity.Order;
 import com.danis.exception.DaoException;
 import com.danis.util.ConnectionManager;
 
@@ -12,49 +13,41 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class UserDao implements Dao<Integer, User>{
+public class OrderDao implements Dao<Integer, Order> {
 
-    public UserDao() {
+    public OrderDao() {
     }
 
-    private static final UserDao INSTANCE = new UserDao();
+    private static final OrderDao INSTANCE = new OrderDao();
 
-    public static UserDao getInstance() {
+    public static OrderDao getInstance() {
         return INSTANCE;
     }
 
     private static final String SAVE_SQL = """
-            INSERT INTO internet_shop.public.users (username, first_name, last_name, email, password, city, isBlocked) 
-            VALUES (?, ?, ?, ?, ?, ?, ?);
+            INSERT INTO internet_shop.public.orders (user_id, sum, isActive) 
+            VALUES (?, ?, ?);
             """;
     private static final String UPDATE_SQL = """
-            UPDATE internet_shop.public.users
-            SET username = ?,
-                first_name = ?,
-                last_name = ?,
-                email = ?,
-                password = ?,
-                city = ?,
-                isBlocked = ?                
+            UPDATE internet_shop.public.orders
+            SET user_id = ?,
+                sum = ?,
+                isActive = ?                          
             WHERE id = ?
             """;
     private static final String FIND_ALL_SQL = """
             SELECT id,
-                username,
-                first_name,
-                last_name,
-                email,
-                password,
-                city,
-                isBlocked
-            FROM internet_shop.public.users
+                user_id,
+                sum,
+                isActive
+            FROM internet_shop.public.orders
             """;
     private static final String FIND_BY_ID_SQL = FIND_ALL_SQL + """
-            WHERE users.id = ?
+            WHERE internet_shop.public.orders.id = ?
             """;
     private static final String UPDATE_DELETE = """
-            UPDATE internet_shop.public.users
-            SET isBlocked = TRUE                
+            UPDATE internet_shop.public.orders
+            SET isActive = FALSE                
             WHERE id = ?
             """;
 
@@ -71,29 +64,29 @@ public class UserDao implements Dao<Integer, User>{
     }
 
     @Override
-    public User save(User user) {
+    public Order save(Order order) {
         try (var connection = ConnectionManager.get();
              var preparedStatement = connection.prepareStatement(SAVE_SQL, Statement.RETURN_GENERATED_KEYS)) {
-            populatePreparedStatement(user, preparedStatement);
+            populatePreparedStatement(order, preparedStatement);
 
             preparedStatement.executeUpdate();
 
             var generatedKeys = preparedStatement.getGeneratedKeys();
             if (generatedKeys.next()) {
-                user.setId(generatedKeys.getInt("id"));
+                order.setId(generatedKeys.getInt("id"));
             }
-            return user;
+            return order;
         } catch (SQLException e) {
             throw new DaoException(e);
         }
     }
 
     @Override
-    public void update(User user) {
+    public void update(Order order) {
         try (var connection = ConnectionManager.get();
              var preparedStatement = connection.prepareStatement(UPDATE_SQL)) {
-            populatePreparedStatement(user, preparedStatement);
-            preparedStatement.setInt(8, user.getId());
+            populatePreparedStatement(order, preparedStatement);
+            preparedStatement.setInt(4, order.getId());
 
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
@@ -101,59 +94,51 @@ public class UserDao implements Dao<Integer, User>{
         }
     }
 
-    private void populatePreparedStatement(User user, PreparedStatement preparedStatement) throws SQLException {
-        preparedStatement.setString(1, user.getUsername());
-        preparedStatement.setString(2, user.getFirstName());
-        preparedStatement.setString(3, user.getLastName());
-        preparedStatement.setString(4, user.getEmail());
-        preparedStatement.setString(5, user.getPassword());
-        preparedStatement.setString(6, user.getCity());
-        preparedStatement.setBoolean(7, user.isBlocked());
+    private void populatePreparedStatement(Order order, PreparedStatement preparedStatement) throws SQLException {
+        preparedStatement.setInt(1, order.getUser_id());
+        preparedStatement.setInt(2, order.getSum());
+        preparedStatement.setBoolean(3, order.isActive());
     }
 
     @Override
-    public Optional<User> findById(Integer id) {
+    public Optional<Order> findById(Integer id) {
         try (var connection = ConnectionManager.get();
              var preparedStatement = connection.prepareStatement(FIND_BY_ID_SQL)) {
             preparedStatement.setInt(1, id);
 
             var resultSet = preparedStatement.executeQuery();
-            User user = null;
+            Order order = null;
             if (resultSet.next()) {
-                user = buildUser(resultSet);
+                order = buildOrder(resultSet);
             }
 
-            return Optional.ofNullable(user);
+            return Optional.ofNullable(order);
         } catch (SQLException e) {
             throw new DaoException(e);
         }
     }
 
     @Override
-    public List<User> findAll() {
+    public List<Order> findAll() {
         try (var connection = ConnectionManager.get();
              var preparedStatement = connection.prepareStatement(FIND_ALL_SQL)) {
             var resultSet = preparedStatement.executeQuery();
-            List<User> users = new ArrayList<>();
+            List<Order> orders = new ArrayList<>();
             while (resultSet.next()) {
-                users.add(buildUser(resultSet));
+                orders.add(buildOrder(resultSet));
             }
-            return users;
+            return orders;
         } catch (SQLException e) {
             throw new DaoException(e);
         }
     }
 
-    private User buildUser(ResultSet resultSet) throws SQLException {
-        return new User(
+    private Order buildOrder(ResultSet resultSet) throws SQLException {
+        return new Order(
                 resultSet.getInt("id"),
-                resultSet.getString("username"),
-                resultSet.getString("first_name"),
-                resultSet.getString("last_name"),
-                resultSet.getString("email"),
-                resultSet.getString("password"),
-                resultSet.getString("city"),
-                resultSet.getBoolean("isBlocked")
+                resultSet.getInt("user_id"),
+                resultSet.getInt("sum"),
+                resultSet.getBoolean("isActive")
         );
     }
 }

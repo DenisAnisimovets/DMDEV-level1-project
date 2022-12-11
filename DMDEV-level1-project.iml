@@ -30,5 +30,6 @@
       </library>
     </orderEntry>
     <orderEntry type="library" name="servlet-api" level="project" />
+    <orderEntry type="library" name="lombok" level="project" />
   </component>
 </module>
