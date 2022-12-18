@@ -101,6 +101,21 @@ public class OrderDao implements Dao<Integer, Order> {
     }
 
     @Override
+    public List<Order> findAll() {
+        try (var connection = ConnectionManager.get();
+             var preparedStatement = connection.prepareStatement(FIND_ALL_SQL)) {
+            var resultSet = preparedStatement.executeQuery();
+            List<Order> orders = new ArrayList<>();
+            while (resultSet.next()) {
+                orders.add(buildOrder(resultSet));
+            }
+            return orders;
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        }
+    }
+
+    @Override
     public Optional<Order> findById(Integer id) {
         try (var connection = ConnectionManager.get();
              var preparedStatement = connection.prepareStatement(FIND_BY_ID_SQL)) {
@@ -113,21 +128,6 @@ public class OrderDao implements Dao<Integer, Order> {
             }
 
             return Optional.ofNullable(order);
-        } catch (SQLException e) {
-            throw new DaoException(e);
-        }
-    }
-
-    @Override
-    public List<Order> findAll() {
-        try (var connection = ConnectionManager.get();
-             var preparedStatement = connection.prepareStatement(FIND_ALL_SQL)) {
-            var resultSet = preparedStatement.executeQuery();
-            List<Order> orders = new ArrayList<>();
-            while (resultSet.next()) {
-                orders.add(buildOrder(resultSet));
-            }
-            return orders;
         } catch (SQLException e) {
             throw new DaoException(e);
         }

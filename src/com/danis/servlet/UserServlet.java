@@ -1,6 +1,7 @@
 package com.danis.servlet;
 
 import com.danis.dao.UserDao;
+import com.danis.util.JSPHelper;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -17,9 +18,10 @@ public class UserServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         resp.setContentType("text/html");
-        try (var writer = resp.getWriter()) {
-            int a = 4;
-            writer.write(new StringBuilder().append("<h1>").append(userDao.findAll().toString()).append("</h1>").toString());
-        }
+        req.setAttribute("users", userDao.findAll());
+        req.getRequestDispatcher(JSPHelper.getPath("users")).forward(req, resp);
+        //try (var writer = resp.getWriter()) {
+            //writer.write(new StringBuilder().append("<h1>").append(userDao.findAll().toString()).append("</h1>").toString());
+        //}
     }
 }
