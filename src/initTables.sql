@@ -1,14 +1,15 @@
 --Пользователь
---имеет несколько ролей
 CREATE TABLE IF NOT EXISTS users
 (
     id         SERIAL PRIMARY KEY,
     username   VARCHAR(256),
-    first_name VARCHAR(256),
-    last_name  VARCHAR(256),
+    birthday   DATE,
+    gender     VARCHAR(128),
+    role       VARCHAR(128),
     email      VARCHAR(256) UNIQUE NOT NULL,
     password   VARCHAR(256)        NOT NULL,
     city       VARCHAR(128),
+    image      VARCHAR(256),
     isBlocked  BOOLEAN
 );
 
@@ -19,20 +20,12 @@ CREATE TABLE IF NOT EXISTS roles
     name VARCHAR(128)
 );
 
---Роли пользователей. Для каждого прользователя может быть несколько ролей.
-CREATE TABLE IF NOT EXISTS user_role
-(
-    user_id INT REFERENCES users (id) NOT NULL,
-    role_id INT REFERENCES roles (id) NOT NULL,
-    PRIMARY KEY (user_id, role_id)
-);
-
 --Товары
 CREATE TABLE IF NOT EXISTS products
 (
-    id          SERIAL PRIMARY KEY,
-    name        VARCHAR(128) NOT NULL,
-    description VARCHAR(256) NOT NULL,
+    id          SERIAL PRIMARY KEY ,
+    name        VARCHAR(128) NOT NULL UNIQUE ,
+    description VARCHAR(256) NOT NULL ,
     price       INT,
     quantity    INT
 );

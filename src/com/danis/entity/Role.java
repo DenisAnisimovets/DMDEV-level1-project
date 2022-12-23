@@ -1,15 +1,14 @@
 package com.danis.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import java.util.Arrays;
+import java.util.Optional;
 
-@ToString
-@Setter
-@Getter
-@AllArgsConstructor
-public class Role {
-    private int id;
-    private String rolename;
+public enum Role {
+    ADMIN,
+    USER;
+
+    public static Optional<Role> findByName(String role) {
+        return Arrays.stream(values()).filter(it -> it.name().equals(role)).
+                findFirst();
+    }
 }

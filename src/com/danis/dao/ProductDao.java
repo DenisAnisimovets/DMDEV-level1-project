@@ -24,7 +24,7 @@ public class ProductDao implements Dao<Integer, Product> {
     }
 
     private static final String SAVE_SQL = """
-            INSERT INTO internet_shop.public.products (name, description, price, quantity) 
+            INSERT INTO internet_shop.public.products (name, description, price, quantity)
             VALUES (?, ?, ?, ?);
             """;
     private static final String UPDATE_SQL = """
@@ -32,7 +32,7 @@ public class ProductDao implements Dao<Integer, Product> {
             SET name = ?,
                 description = ?,
                 price = ?,
-                quantity = ?                          
+                quantity = ?
             WHERE id = ?
             """;
     private static final String FIND_ALL_SQL = """
@@ -46,6 +46,11 @@ public class ProductDao implements Dao<Integer, Product> {
     private static final String FIND_BY_ID_SQL = FIND_ALL_SQL + """
             WHERE products.id = ?
             """;
+
+    private static final String FIND_BY_NAME_SQL = FIND_ALL_SQL + """
+            WHERE products.name = ?
+            """;
+
     private static final String DELETE_SQL = """
             DELETE FROM products
             WHERE id = ?
@@ -106,6 +111,23 @@ public class ProductDao implements Dao<Integer, Product> {
         try (var connection = ConnectionManager.get();
              var preparedStatement = connection.prepareStatement(FIND_BY_ID_SQL)) {
             preparedStatement.setInt(1, id);
+
+            var resultSet = preparedStatement.executeQuery();
+            Product product = null;
+            if (resultSet.next()) {
+                product = buildProduct(resultSet);
+            }
+
+            return Optional.ofNullable(product);
+        } catch (SQLException e) {
+            throw new DaoException(e);
+        }
+    }
+
+    public Optional<Product> findByName(String name) {
+        try (var connection = ConnectionManager.get();
+             var preparedStatement = connection.prepareStatement(FIND_BY_NAME_SQL)) {
+            preparedStatement.setString(1, name);
 
             var resultSet = preparedStatement.executeQuery();
             Product product = null;

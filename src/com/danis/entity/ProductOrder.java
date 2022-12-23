@@ -10,8 +10,8 @@ import lombok.ToString;
 @Setter
 @ToString
 public class ProductOrder {
-    private int order_id;
-    private int product_id;
+    private int orderId;
+    private int productId;
     private int quantity;
     private int price;
     private int sum;

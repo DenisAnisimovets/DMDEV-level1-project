@@ -1,9 +1,14 @@
 package com.danis.dao;
 
+import com.danis.dto.ReadUserDto;
+import com.danis.entity.Gender;
+import com.danis.entity.Role;
 import com.danis.entity.User;
 import com.danis.exception.DaoException;
 import com.danis.util.ConnectionManager;
+import lombok.SneakyThrows;
 
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -12,7 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class UserDao implements Dao<Integer, User>{
+public class UserDao implements Dao<Integer, User> {
 
     public UserDao() {
     }
@@ -24,53 +29,77 @@ public class UserDao implements Dao<Integer, User>{
     }
 
     private static final String SAVE_SQL = """
-            INSERT INTO internet_shop.public.users (username, first_name, last_name, email, password, city, isBlocked) 
-            VALUES (?, ?, ?, ?, ?, ?, ?);
+            INSERT INTO internet_shop.public.users (username, role, birthday, gender, email, password, city, image, isBlocked)
+            VALUES (?, ?, ?::date, ?, ?, ?, ?, ?, ?);
             """;
     private static final String UPDATE_SQL = """
             UPDATE internet_shop.public.users
             SET username = ?,
-                first_name = ?,
-                last_name = ?,
+                role = ?,
+                birthday = ?,
+                gender = ?,
                 email = ?,
                 password = ?,
-                city = ?,
-                isBlocked = ?                
+                city = ? ,
+                image = ? ,
+                isBlocked = ?
             WHERE id = ?
             """;
     private static final String FIND_ALL_SQL = """
             SELECT id,
                 username,
-                first_name,
-                last_name,
+                role,
+                birthday,
+                gender,
                 email,
                 password,
                 city,
+                image,
                 isBlocked
             FROM internet_shop.public.users
             """;
     private static final String FIND_BY_ID_SQL = FIND_ALL_SQL + """
             WHERE users.id = ?
             """;
+
+    private static final String FIND_BY_EMAIL_AND_PASSWORD_SQL = """
+            SELECT id,
+                username,
+                role,
+                birthday,
+                gender,
+                email,
+                password,
+                city,
+                image,
+                isBlocked
+            FROM  internet_shop.public.users
+            WHERE users.email = ? AND users.password = ?
+            """;
+
+    private static final String FIND_BY_NAME_SQL = FIND_ALL_SQL + """
+            WHERE users.username = ?
+            """;
+
     private static final String UPDATE_DELETE = """
             UPDATE internet_shop.public.users
-            SET isBlocked = TRUE                
+            SET isBlocked = TRUE
             WHERE id = ?
             """;
 
     @Override
+    @SneakyThrows
     public boolean delete(Integer id) {
         try (var connection = ConnectionManager.get();
              var preparedStatement = connection.prepareStatement(UPDATE_DELETE)) {
             preparedStatement.setInt(1, id);
 
             return preparedStatement.executeUpdate() > 0;
-        } catch (SQLException e) {
-            throw new DaoException(e);
         }
     }
 
     @Override
+    @SneakyThrows
     public User save(User user) {
         try (var connection = ConnectionManager.get();
              var preparedStatement = connection.prepareStatement(SAVE_SQL, Statement.RETURN_GENERATED_KEYS)) {
@@ -79,39 +108,27 @@ public class UserDao implements Dao<Integer, User>{
             preparedStatement.executeUpdate();
 
             var generatedKeys = preparedStatement.getGeneratedKeys();
-            if (generatedKeys.next()) {
+            if(generatedKeys.next()) {
                 user.setId(generatedKeys.getInt("id"));
             }
             return user;
-        } catch (SQLException e) {
-            throw new DaoException(e);
         }
     }
 
     @Override
+    @SneakyThrows
     public void update(User user) {
         try (var connection = ConnectionManager.get();
              var preparedStatement = connection.prepareStatement(UPDATE_SQL)) {
             populatePreparedStatement(user, preparedStatement);
-            preparedStatement.setInt(8, user.getId());
+            preparedStatement.setInt(10, user.getId());
 
             preparedStatement.executeUpdate();
-        } catch (SQLException e) {
-            throw new DaoException(e);
         }
     }
 
-    private void populatePreparedStatement(User user, PreparedStatement preparedStatement) throws SQLException {
-        preparedStatement.setString(1, user.getUsername());
-        preparedStatement.setString(2, user.getFirstName());
-        preparedStatement.setString(3, user.getLastName());
-        preparedStatement.setString(4, user.getEmail());
-        preparedStatement.setString(5, user.getPassword());
-        preparedStatement.setString(6, user.getCity());
-        preparedStatement.setBoolean(7, user.isBlocked());
-    }
-
     @Override
+    @SneakyThrows
     public Optional<User> findById(Integer id) {
         try (var connection = ConnectionManager.get();
              var preparedStatement = connection.prepareStatement(FIND_BY_ID_SQL)) {
@@ -119,14 +136,54 @@ public class UserDao implements Dao<Integer, User>{
 
             var resultSet = preparedStatement.executeQuery();
             User user = null;
-            if (resultSet.next()) {
+            if(resultSet.next()) {
                 user = buildUser(resultSet);
             }
-
             return Optional.ofNullable(user);
-        } catch (SQLException e) {
-            throw new DaoException(e);
         }
+    }
+
+    @SneakyThrows
+    public Optional<User> findByEmailAndPassword(String email, String password) {
+        try (var connection = ConnectionManager.get();
+             var preparedStatement = connection.prepareStatement(FIND_BY_EMAIL_AND_PASSWORD_SQL)) {
+            preparedStatement.setString(1, email);
+            preparedStatement.setString(2, password);
+
+            var resultSet = preparedStatement.executeQuery();
+            User user = null;
+            if(resultSet.next()) {
+                user = buildUser(resultSet);
+            }
+            return Optional.ofNullable(user);
+        }
+    }
+
+    @SneakyThrows
+    public Optional<User> findByName(String name) {
+        try (var connection = ConnectionManager.get();
+             var preparedStatement = connection.prepareStatement(FIND_BY_NAME_SQL)) {
+            preparedStatement.setString(1, name);
+
+            var resultSet = preparedStatement.executeQuery();
+            User user = null;
+            if(resultSet.next()) {
+                user = buildUser(resultSet);
+            }
+            return Optional.ofNullable(user);
+        }
+    }
+
+    private void populatePreparedStatement(User user, PreparedStatement preparedStatement) throws SQLException {
+        preparedStatement.setString(1, user.getUsername());
+        preparedStatement.setString(2, user.getRole().name());
+        preparedStatement.setString(3, user.getBirthday().toString());
+        preparedStatement.setString(4, user.getGender().toString());
+        preparedStatement.setString(5, user.getEmail());
+        preparedStatement.setString(6, user.getPassword());
+        preparedStatement.setString(7, user.getCity());
+        preparedStatement.setString(8, user.getImage());
+        preparedStatement.setBoolean(9, user.isBlocked());
     }
 
     @Override
@@ -144,16 +201,19 @@ public class UserDao implements Dao<Integer, User>{
         }
     }
 
+
     private User buildUser(ResultSet resultSet) throws SQLException {
-        return new User(
-                resultSet.getInt("id"),
-                resultSet.getString("username"),
-                resultSet.getString("first_name"),
-                resultSet.getString("last_name"),
-                resultSet.getString("email"),
-                resultSet.getString("password"),
-                resultSet.getString("city"),
-                resultSet.getBoolean("isBlocked")
-        );
+        return User.builder().id(resultSet.getInt("id"))
+                .username(resultSet.getString("userName"))
+                .birthday(resultSet.getObject("birthday", Date.class).toLocalDate())
+                .gender(Gender.findByName(resultSet.getString("gender")).orElse(null))
+                .email(resultSet.getString("email"))
+                .password(resultSet.getString("password"))
+                .role(Role.findByName(resultSet.getString("role")).orElse(null))
+                .city(resultSet.getString("city"))
+                .image(resultSet.getString("image"))
+                .isBlocked(resultSet.getBoolean("isBlocked")).build();
     }
 }
+
+
